@@ -1,21 +1,22 @@
-var LOCAL_CALLBACK_URL = "--insert-tmobile-local-callback-url-here--";
-var TMOBILE_CLIENT_ID = "--insert-tmobile-client-id-here--";
-var TMOBILE_CLIENT_SECRET = "--insert-tmobile-client-secret-here--";
+var express           = require('express'),
+    passport          = require('passport'),
+    qs                = require('qs'),
+    TMobileIDStrategy = require('passport-tmobileid').Strategy;
+
+var LOCAL_CALLBACK_URL    = "http://localhost:3000",
+    TOKEN_URL             = 'https://token.tmus.net/oauth2/v1/token',
+    TMOBILE_CLIENT_ID     = "A-HfuiP64-iz0",
+    TMOBILE_CLIENT_SECRET = "Q3KtXkU9zB";
 
 var params = {'access_type': 'ONLINE',
-  'redirect_uri': 'https://localhost:3000/tmoid/callback',
+  'redirect_uri': LOCAL_CALLBACK_URL,
   'scope': 'TMO_ID_profile,associated_lines,billing_information,entitlements',
   'client_id': TMOBILE_CLIENT_ID,
   'response_type' : 'code'};
 
-var express = require('express')
-    , passport = require('passport')
-    , qs = require('qs')
-    , TMobileIDStrategy = require('passport-tmobileid').Strategy;
-
 passport.use(new TMobileIDStrategy({
     redirect_uri : LOCAL_CALLBACK_URL,
-    tokenURL : 'https://token.tmus.net/oauth2/v1/token',
+    tokenURL : TOKEN_URL,
     clientID : TMOBILE_CLIENT_ID,
     clientSecret : TMOBILE_CLIENT_SECRET,
     passReqToCallback : true //to get the req back from passport
@@ -42,15 +43,20 @@ function(req, token, expiry, id, done){
 })
 );
 
+/***********/
+/* Express */
+/***********/
 
 var app = express();
 
-// configure Express
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(passport.initialize());
 app.use(express.static(__dirname + '/public'));
 
+/**********/
+/* Routes */
+/**********/
 
 app.get('/', function(req, res){
     res.render('index', { user: req.user });
@@ -65,17 +71,8 @@ app.get('/profile', function(req, res) {
 });
 
 app.get('/auth/tmoid', function(req, res) {
-    res.redirect('https://uat.auth.tmus.net/oauth2/v1/auth?' + qs.stringify(params));
+    res.redirect('https://auth.tmus.net/oauth2/v1/auth?' + qs.stringify(params));
 });
-
-app.get('/auth/tmoid/callback',
-  passport.authenticate('tmoid', {
-    failureRedirect: '/login',
-    successRedirect: '/profile'
-  }),
-    function(req, res) {
-      // Successful authentication, do nothing.
-  });
 
 //Listen on port 3000
 app.listen(3000);
