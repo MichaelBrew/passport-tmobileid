@@ -9,10 +9,10 @@ var LOCAL_CALLBACK_URL    = "http://localhost:3000",
     TMOBILE_CLIENT_SECRET = "Q3KtXkU9zB";
 
 var params = {'access_type': 'ONLINE',
-  'redirect_uri': LOCAL_CALLBACK_URL,
-  'scope': 'TMO_ID_profile,associated_lines,billing_information,entitlements',
-  'client_id': TMOBILE_CLIENT_ID,
-  'response_type' : 'code'};
+  'redirect_uri'           : LOCAL_CALLBACK_URL,
+  'scope'                  : 'TMO_ID_profile,associated_lines,billing_information,entitlements',
+  'client_id'              : TMOBILE_CLIENT_ID,
+  'response_type'          : 'code'};
 
 passport.use(new TMobileIDStrategy({
     redirect_uri : LOCAL_CALLBACK_URL,
